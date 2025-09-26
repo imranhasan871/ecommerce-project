@@ -18,15 +18,15 @@ type Product struct {
 var ProductList []Product
 
 func getProducts(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+
 	if r.Method != http.MethodGet {
 		http.Error(w, "Please give me GET request", http.StatusBadRequest)
 		return
 	}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
-	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 
 	encoder := json.NewEncoder(w)
 	error := encoder.Encode(ProductList)
@@ -35,10 +35,37 @@ func getProducts(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func createProduct(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+
+	if r.Method != http.MethodPost {
+		http.Error(w, "Please Give me POST request", http.StatusCreated)
+		return
+	}
+
+	var newProduct Product
+
+	decoder := json.NewDecoder(r.Body)
+	err := decoder.Decode(&newProduct)
+	if err != nil {
+		fmt.Println(err)
+		http.Error(w, "Please Give me valid Json", http.StatusBadRequest)
+		return
+	}
+	newProduct.ID = len(ProductList) + 1
+	ProductList = append(ProductList, newProduct)
+
+	json.NewEncoder(w).Encode(ProductList)
+}
+
 func main() {
 	mux := http.NewServeMux()
 
 	mux.HandleFunc("/products", getProducts)
+	mux.HandleFunc("/create-product", createProduct)
 
 	fmt.Println("Server is running on port 3000")
 	err := http.ListenAndServe(":3000", mux)
