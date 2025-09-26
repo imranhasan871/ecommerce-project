@@ -8,11 +8,11 @@ import (
 )
 
 type Product struct {
-	ID          int
-	Title       string
-	Description string
-	Price       float64
-	ImgURL      string
+	ID          int     `json:"id"`
+	Title       string  `json:"title"`
+	Description string  `json:"description"`
+	Price       float64 `json:"price"`
+	ImgURL      string  `json:"imageURL"`
 }
 
 var ProductList []Product
@@ -23,7 +23,10 @@ func getProducts(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Header().Set("content-type", "application/json")
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 
 	encoder := json.NewEncoder(w)
 	error := encoder.Encode(ProductList)
