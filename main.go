@@ -15,36 +15,45 @@ type Product struct {
 	ImgURL      string  `json:"imageURL"`
 }
 
-var ProductList []Product
-
-func getProducts(w http.ResponseWriter, r *http.Request) {
+func handleCors(w http.ResponseWriter) {
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+}
+
+func handlePreflightReq(w http.ResponseWriter, r *http.Request) {
+	if r.Method == http.MethodOptions {
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+}
+
+func sendData(w http.ResponseWriter, data any, statusCode int) {
+	encoder := json.NewEncoder(w)
+	err := encoder.Encode(data)
+	if err != nil {
+		fmt.Println(err)
+		http.Error(w, "Please give me valid Json", statusCode)
+		return
+	}
+}
+
+var ProductList []Product
+
+func getProducts(w http.ResponseWriter, r *http.Request) {
+	handleCors(w)
 
 	if r.Method != http.MethodGet {
 		http.Error(w, "Please give me GET request", http.StatusBadRequest)
 		return
 	}
-
-	encoder := json.NewEncoder(w)
-	error := encoder.Encode(ProductList)
-	if error != nil {
-
-	}
+	sendData(w, ProductList, http.StatusOK)
 }
 
 func createProduct(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
-	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
-
-	if r.Method == http.MethodOptions {
-		w.WriteHeader(http.StatusOK)
-		return
-	}
+	handleCors(w)
+	handlePreflightReq(w, r)
 
 	if r.Method != http.MethodPost {
 		http.Error(w, "Please Give me POST request", http.StatusBadRequest)
@@ -66,8 +75,7 @@ func createProduct(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusCreated)
 
-	json.NewEncoder(w).Encode(newProduct)
-
+	sendData(w, newProduct, http.StatusOK)
 }
 
 func main() {
