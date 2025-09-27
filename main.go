@@ -22,11 +22,8 @@ func handleCors(w http.ResponseWriter) {
 	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
 }
 
-func handlePreflightReq(w http.ResponseWriter, r *http.Request) {
-	if r.Method == http.MethodOptions {
-		w.WriteHeader(http.StatusOK)
-		return
-	}
+func handlePreflightReq(w http.ResponseWriter) {
+	w.WriteHeader(http.StatusOK)
 }
 
 func sendData(w http.ResponseWriter, data any, statusCode int) {
@@ -43,12 +40,20 @@ var ProductList []Product
 
 func getProducts(w http.ResponseWriter, r *http.Request) {
 	handleCors(w)
+
+	if r.Method == http.MethodOptions {
+		handlePreflightReq(w)
+	}
+
 	sendData(w, ProductList, http.StatusOK)
 }
 
 func createProduct(w http.ResponseWriter, r *http.Request) {
 	handleCors(w)
-	handlePreflightReq(w, r)
+
+	if r.Method == http.MethodOptions {
+		handlePreflightReq(w)
+	}
 
 	newProduct := Product{}
 
