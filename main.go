@@ -43,22 +43,12 @@ var ProductList []Product
 
 func getProducts(w http.ResponseWriter, r *http.Request) {
 	handleCors(w)
-
-	if r.Method != http.MethodGet {
-		http.Error(w, "Please give me GET request", http.StatusBadRequest)
-		return
-	}
 	sendData(w, ProductList, http.StatusOK)
 }
 
 func createProduct(w http.ResponseWriter, r *http.Request) {
 	handleCors(w)
 	handlePreflightReq(w, r)
-
-	if r.Method != http.MethodPost {
-		http.Error(w, "Please Give me POST request", http.StatusBadRequest)
-		return
-	}
 
 	newProduct := Product{}
 
@@ -81,8 +71,8 @@ func createProduct(w http.ResponseWriter, r *http.Request) {
 func main() {
 	mux := http.NewServeMux()
 
-	mux.HandleFunc("/products", getProducts)
-	mux.HandleFunc("/create-product", createProduct)
+	mux.Handle("GET /products", http.HandlerFunc(getProducts))
+	mux.Handle("POST /products", http.HandlerFunc(createProduct))
 
 	fmt.Println("Server is running on port 3000")
 	err := http.ListenAndServe(":3000", mux)
