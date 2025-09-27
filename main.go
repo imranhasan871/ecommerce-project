@@ -73,6 +73,7 @@ func main() {
 
 	mux.Handle("GET /products", http.HandlerFunc(getProducts))
 	mux.Handle("POST /products", http.HandlerFunc(createProduct))
+	mux.Handle("OPTIONS /products", http.HandlerFunc(createProduct))
 
 	fmt.Println("Server is running on port 3000")
 	err := http.ListenAndServe(":3000", mux)
