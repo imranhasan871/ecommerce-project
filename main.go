@@ -41,24 +41,33 @@ func createProduct(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
 
-	if r.Method != http.MethodPost {
-		http.Error(w, "Please Give me POST request", http.StatusCreated)
+	if r.Method == http.MethodOptions {
+		w.WriteHeader(http.StatusOK)
 		return
 	}
 
-	var newProduct Product
+	if r.Method != http.MethodPost {
+		http.Error(w, "Please Give me POST request", http.StatusBadRequest)
+		return
+	}
+
+	newProduct := Product{}
 
 	decoder := json.NewDecoder(r.Body)
 	err := decoder.Decode(&newProduct)
 	if err != nil {
 		fmt.Println(err)
-		http.Error(w, "Please Give me valid Json", http.StatusBadRequest)
+		http.Error(w, "Please give me valid Json", http.StatusBadRequest)
 		return
 	}
+
 	newProduct.ID = len(ProductList) + 1
 	ProductList = append(ProductList, newProduct)
 
-	json.NewEncoder(w).Encode(ProductList)
+	w.WriteHeader(http.StatusCreated)
+
+	json.NewEncoder(w).Encode(newProduct)
+
 }
 
 func main() {
