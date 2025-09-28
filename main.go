@@ -1,56 +1,10 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 	"os"
-	"time"
 )
-
-type Product struct {
-	ID          int     `json:"id"`
-	Title       string  `json:"title"`
-	Description string  `json:"description"`
-	Price       float64 `json:"price"`
-	ImgURL      string  `json:"imageURL"`
-}
-
-func sendData(w http.ResponseWriter, data any, statusCode int) {
-	encoder := json.NewEncoder(w)
-	err := encoder.Encode(data)
-	if err != nil {
-		fmt.Println(err)
-		http.Error(w, "Please give me valid Json", statusCode)
-		return
-	}
-}
-
-var ProductList []Product
-
-func getProducts(w http.ResponseWriter, r *http.Request) {
-	sendData(w, ProductList, http.StatusOK)
-}
-
-func createProduct(w http.ResponseWriter, r *http.Request) {
-	newProduct := Product{}
-
-	decoder := json.NewDecoder(r.Body)
-	err := decoder.Decode(&newProduct)
-	if err != nil {
-		fmt.Println(err)
-		http.Error(w, "Please give me valid Json", http.StatusBadRequest)
-		return
-	}
-
-	newProduct.ID = len(ProductList) + 1
-	ProductList = append(ProductList, newProduct)
-
-	w.WriteHeader(http.StatusCreated)
-
-	sendData(w, newProduct, http.StatusOK)
-}
 
 func main() {
 	mux := http.NewServeMux()
@@ -118,29 +72,4 @@ func init() {
 	ProductList = append(ProductList, product4)
 	ProductList = append(ProductList, product5)
 	ProductList = append(ProductList, product6)
-}
-
-func globalRouter(mux *http.ServeMux) http.Handler {
-	handleAllReq := func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "application/json")
-		w.Header().Set("Access-Control-Allow-Origin", "*")
-		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
-		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
-
-		if r.Method == http.MethodOptions {
-			w.WriteHeader(http.StatusOK)
-			return
-		}
-		mux.ServeHTTP(w, r)
-	}
-
-	return http.HandlerFunc(handleAllReq)
-}
-
-func Logger(mux http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		start := time.Now()
-		mux.ServeHTTP(w, r)
-		log.Printf("%s %s | %s", r.Method, r.URL.Path, time.Since(start))
-	})
 }
