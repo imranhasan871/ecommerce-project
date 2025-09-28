@@ -15,8 +15,9 @@ func Serve() {
 
 	mux.Handle("GET /products", (http.HandlerFunc(handlers.GetProducts)))
 	mux.Handle("POST /products", (http.HandlerFunc(handlers.CreateProduct)))
+	mux.Handle("GET /products/{id}", http.HandlerFunc(handlers.GetProductByID))
 
-	fmt.Println("Server is running on port 3000")
+	fmt.Println("Server is running on port 8080")
 
 	globalRouter := global_router.GlobalRouter(mux)
 

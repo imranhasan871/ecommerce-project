@@ -8,6 +8,7 @@ import (
 
 func SendData(w http.ResponseWriter, data any, statusCode int) {
 	encoder := json.NewEncoder(w)
+	w.WriteHeader(statusCode)
 	err := encoder.Encode(data)
 	if err != nil {
 		fmt.Println(err)
