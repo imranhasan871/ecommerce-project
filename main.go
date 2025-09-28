@@ -17,17 +17,6 @@ type Product struct {
 	ImgURL      string  `json:"imageURL"`
 }
 
-func handleCors(w http.ResponseWriter) {
-	w.Header().Set("Content-Type", "application/json")
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
-	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
-}
-
-func handlePreflightReq(w http.ResponseWriter) {
-	w.WriteHeader(http.StatusOK)
-}
-
 func sendData(w http.ResponseWriter, data any, statusCode int) {
 	encoder := json.NewEncoder(w)
 	err := encoder.Encode(data)
@@ -41,24 +30,10 @@ func sendData(w http.ResponseWriter, data any, statusCode int) {
 var ProductList []Product
 
 func getProducts(w http.ResponseWriter, r *http.Request) {
-	handleCors(w)
-
-	if r.Method == http.MethodOptions {
-		handlePreflightReq(w)
-		return
-	}
-
 	sendData(w, ProductList, http.StatusOK)
 }
 
 func createProduct(w http.ResponseWriter, r *http.Request) {
-	handleCors(w)
-
-	if r.Method == http.MethodOptions {
-		handlePreflightReq(w)
-		return
-	}
-
 	newProduct := Product{}
 
 	decoder := json.NewDecoder(r.Body)
@@ -80,9 +55,8 @@ func createProduct(w http.ResponseWriter, r *http.Request) {
 func main() {
 	mux := http.NewServeMux()
 
-	mux.Handle("GET /products", http.HandlerFunc(getProducts))
-	mux.Handle("POST /products", http.HandlerFunc(createProduct))
-	mux.Handle("OPTIONS /products", http.HandlerFunc(createProduct))
+	mux.Handle("GET /products", corsMiddleware(http.HandlerFunc(getProducts)))
+	mux.Handle("POST /products", corsMiddleware(http.HandlerFunc(createProduct)))
 
 	fmt.Println("Server is running on port 3000")
 
@@ -161,6 +135,18 @@ func globalRouter(mux *http.ServeMux) http.Handler {
 	}
 
 	return http.HandlerFunc(handleAllReq)
+}
+
+func corsMiddleware(next http.Handler) http.Handler {
+	handleCors := func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Content-Type", "application/json")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+		w.Header().Set("Access-control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS")
+
+		next.ServeHTTP(w, r)
+	}
+	return http.HandlerFunc(handleCors)
 }
 
 func Logger(mux http.Handler) http.Handler {
