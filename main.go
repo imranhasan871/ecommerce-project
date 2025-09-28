@@ -3,8 +3,10 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"os"
+	"time"
 )
 
 type Product struct {
@@ -76,7 +78,7 @@ func createProduct(w http.ResponseWriter, r *http.Request) {
 func main() {
 	mux := http.NewServeMux()
 
-	mux.Handle("GET /products", http.HandlerFunc(getProducts))
+	mux.Handle("GET /products", Logger(http.HandlerFunc(getProducts)))
 	mux.Handle("POST /products", http.HandlerFunc(createProduct))
 	mux.Handle("OPTIONS /products", http.HandlerFunc(createProduct))
 
@@ -137,4 +139,12 @@ func init() {
 	ProductList = append(ProductList, product4)
 	ProductList = append(ProductList, product5)
 	ProductList = append(ProductList, product6)
+}
+
+func Logger(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		start := time.Now()
+		next.ServeHTTP(w, r)
+		log.Printf("%s %s | %s", r.Method, r.URL.Path, time.Since(start))
+	})
 }
