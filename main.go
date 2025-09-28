@@ -85,7 +85,10 @@ func main() {
 	mux.Handle("OPTIONS /products", http.HandlerFunc(createProduct))
 
 	fmt.Println("Server is running on port 3000")
-	err := http.ListenAndServe(":3000", Logger(mux))
+
+	globalRouter := globalRouter(mux)
+
+	err := http.ListenAndServe(":3000", Logger(globalRouter))
 	if err != nil {
 		fmt.Println("Error starting the server")
 		os.Exit(1)
@@ -143,10 +146,27 @@ func init() {
 	ProductList = append(ProductList, product6)
 }
 
-func Logger(next http.Handler) http.Handler {
+func globalRouter(mux *http.ServeMux) http.Handler {
+	handleAllReq := func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == http.MethodOptions {
+			w.Header().Set("Content-Type", "application/json")
+			w.Header().Set("Access-Control-Allow-Origin", "*")
+			w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+			w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+
+			w.WriteHeader(http.StatusOK)
+		} else {
+			mux.ServeHTTP(w, r)
+		}
+	}
+
+	return http.HandlerFunc(handleAllReq)
+}
+
+func Logger(mux http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()
-		next.ServeHTTP(w, r)
+		mux.ServeHTTP(w, r)
 		log.Printf("%s %s | %s", r.Method, r.URL.Path, time.Since(start))
 	})
 }
