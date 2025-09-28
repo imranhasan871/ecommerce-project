@@ -55,8 +55,8 @@ func createProduct(w http.ResponseWriter, r *http.Request) {
 func main() {
 	mux := http.NewServeMux()
 
-	mux.Handle("GET /products", corsMiddleware(http.HandlerFunc(getProducts)))
-	mux.Handle("POST /products", corsMiddleware(http.HandlerFunc(createProduct)))
+	mux.Handle("GET /products", (http.HandlerFunc(getProducts)))
+	mux.Handle("POST /products", (http.HandlerFunc(createProduct)))
 
 	fmt.Println("Server is running on port 3000")
 
@@ -122,31 +122,19 @@ func init() {
 
 func globalRouter(mux *http.ServeMux) http.Handler {
 	handleAllReq := func(w http.ResponseWriter, r *http.Request) {
-		if r.Method == http.MethodOptions {
-			w.Header().Set("Content-Type", "application/json")
-			w.Header().Set("Access-Control-Allow-Origin", "*")
-			w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
-			w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+		w.Header().Set("Content-Type", "application/json")
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
 
+		if r.Method == http.MethodOptions {
 			w.WriteHeader(http.StatusOK)
-		} else {
-			mux.ServeHTTP(w, r)
+			return
 		}
+		mux.ServeHTTP(w, r)
 	}
 
 	return http.HandlerFunc(handleAllReq)
-}
-
-func corsMiddleware(next http.Handler) http.Handler {
-	handleCors := func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Access-Control-Allow-Origin", "*")
-		w.Header().Set("Content-Type", "application/json")
-		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
-		w.Header().Set("Access-control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS")
-
-		next.ServeHTTP(w, r)
-	}
-	return http.HandlerFunc(handleCors)
 }
 
 func Logger(mux http.Handler) http.Handler {
