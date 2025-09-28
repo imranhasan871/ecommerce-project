@@ -45,6 +45,7 @@ func getProducts(w http.ResponseWriter, r *http.Request) {
 
 	if r.Method == http.MethodOptions {
 		handlePreflightReq(w)
+		return
 	}
 
 	sendData(w, ProductList, http.StatusOK)
@@ -55,6 +56,7 @@ func createProduct(w http.ResponseWriter, r *http.Request) {
 
 	if r.Method == http.MethodOptions {
 		handlePreflightReq(w)
+		return
 	}
 
 	newProduct := Product{}
@@ -78,12 +80,12 @@ func createProduct(w http.ResponseWriter, r *http.Request) {
 func main() {
 	mux := http.NewServeMux()
 
-	mux.Handle("GET /products", Logger(http.HandlerFunc(getProducts)))
+	mux.Handle("GET /products", http.HandlerFunc(getProducts))
 	mux.Handle("POST /products", http.HandlerFunc(createProduct))
 	mux.Handle("OPTIONS /products", http.HandlerFunc(createProduct))
 
 	fmt.Println("Server is running on port 3000")
-	err := http.ListenAndServe(":3000", mux)
+	err := http.ListenAndServe(":3000", Logger(mux))
 	if err != nil {
 		fmt.Println("Error starting the server")
 		os.Exit(1)
