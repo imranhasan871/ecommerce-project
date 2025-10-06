@@ -5,10 +5,13 @@ import (
 	"net/http"
 	"os"
 
+	"ecommerce/config"
 	"ecommerce/middleware"
 )
 
 func Serve() {
+	cnf := config.GetConfig()
+
 	manager := middleware.NewManager()
 	manager.Use(middleware.Logger, middleware.CorsWithPreflight)
 
@@ -16,8 +19,8 @@ func Serve() {
 
 	initRoutes(mux, manager)
 
-	fmt.Println("Server is running on port 8080")
-	err := http.ListenAndServe(":8080", manager.With(mux))
+	fmt.Println("Server is running on port:", cnf.HttpPort)
+	err := http.ListenAndServe(":"+cnf.HttpPort, manager.With(mux))
 	if err != nil {
 		fmt.Println("Error starting the server", err)
 		os.Exit(1)
