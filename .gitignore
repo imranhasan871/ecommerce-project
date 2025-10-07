@@ -11,18 +11,54 @@
 # Output of the go coverage tool
 *.coverprofile
 
-# Dependency directories (remove the comment below if you use Go modules)
+# Dependency directories
 vendor/
 
-# Go workspace file
+# Go workspace / module files that shouldn't be committed
+# If you intentionally share a workspace file, remove these
 go.work
 go.work.sum
+
+# Build directories
+bin/
 
 # IDE/editor files
 .vscode/
 .idea/
 *.swp
+*.swo
 
 # OS generated files
 .DS_Store
 Thumbs.db
+
+# Environment files
+.env
+.env.*
+
+# Docker
+docker-compose.override.yml
+*.local
+
+# Logs and runtime files
+*.log
+tmp/
+*.pid
+
+# Generated files
+coverage.out
+*.cover
+
+# vendor cache (optional)
+/pkg/mod/
+
+# JetBrains project files
+.idea/
+
+# macOS
+.AppleDouble
+.LSOverride
+
+# Windows
+ehthumbs.db
+Desktop.ini
