@@ -19,9 +19,6 @@ func CreateProduct(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Please give me valid Json", http.StatusBadRequest)
 		return
 	}
-
-	newProduct.ID = len(database.ProductList) + 1
-	database.ProductList = append(database.ProductList, newProduct)
-
-	utils.SendData(w, newProduct, http.StatusCreated)
+	createdProduct := database.Store(newProduct)
+	utils.SendData(w, createdProduct, http.StatusCreated)
 }

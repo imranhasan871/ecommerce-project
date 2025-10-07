@@ -8,7 +8,7 @@ import (
 	"ecommerce/utils"
 )
 
-func GetProductByID(w http.ResponseWriter, r *http.Request) {
+func GetProduct(w http.ResponseWriter, r *http.Request) {
 	productID := r.PathValue("id")
 
 	id, err := strconv.Atoi(productID)
@@ -17,11 +17,11 @@ func GetProductByID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	for _, product := range database.ProductList {
-		if product.ID == id {
-			utils.SendData(w, product, http.StatusOK)
-			return
-		}
+	product := database.Get(id)
+	if product == nil {
+		utils.SendError(w, http.StatusNotFound, "Product Not Found")
+		return
 	}
-	utils.SendData(w, "Data Not Found", http.StatusNotFound)
+
+	utils.SendData(w, product, http.StatusOK)
 }
