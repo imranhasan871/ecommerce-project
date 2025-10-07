@@ -3,14 +3,20 @@ package rest
 import (
 	"net/http"
 
-	"ecommerce/rest/handlers"
+	"ecommerce/rest/handlers/product"
+	"ecommerce/rest/handlers/user"
 	"ecommerce/rest/middlewares"
 )
 
 func initRoutes(mux *http.ServeMux, manager *middlewares.Manager) {
-	mux.Handle("GET /products", manager.With(http.HandlerFunc(handlers.GetProducts)))
-	mux.Handle("POST /products", manager.With(http.HandlerFunc(handlers.CreateProduct)))
-	mux.Handle("GET /products/{id}", manager.With(http.HandlerFunc(handlers.GetProduct)))
-	mux.Handle("PUT /products/{id}", manager.With(http.HandlerFunc(handlers.UpdateProduct)))
-	mux.Handle("DELETE /products/{id}", manager.With(http.HandlerFunc(handlers.DeleteProduct)))
+	// Users Routes
+	mux.Handle("POST /users", manager.With(http.HandlerFunc(user.CreateUser)))
+	mux.Handle("POST /users/login", manager.With(http.HandlerFunc(user.Login)))
+
+	// Products Routes
+	mux.Handle("GET /products", manager.With(http.HandlerFunc(product.GetProducts)))
+	mux.Handle("POST /products", manager.With(http.HandlerFunc(product.CreateProduct)))
+	mux.Handle("GET /products/{id}", manager.With(http.HandlerFunc(product.GetProduct)))
+	mux.Handle("PUT /products/{id}", manager.With(http.HandlerFunc(product.UpdateProduct)))
+	mux.Handle("DELETE /products/{id}", manager.With(http.HandlerFunc(product.DeleteProduct)))
 }
