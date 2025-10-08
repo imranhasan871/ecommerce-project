@@ -7,6 +7,6 @@ import (
 	"ecommerce/utils"
 )
 
-func GetProducts(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) GetProducts(w http.ResponseWriter, r *http.Request) {
 	utils.SendData(w, database.List(), http.StatusOK)
 }

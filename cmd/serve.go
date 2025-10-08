@@ -1,9 +1,18 @@
 package cmd
 
 import (
+	"ecommerce/config"
 	"ecommerce/rest"
+	"ecommerce/rest/handlers/product"
+	"ecommerce/rest/handlers/user"
 )
 
 func Serve() {
-	rest.Start()
+	cnf := config.GetConfig()
+
+	productHandler := product.NewHandler()
+	userHandler := user.NewHandler()
+
+	server := rest.NewServer(cnf, productHandler, userHandler)
+	server.Start(cnf)
 }

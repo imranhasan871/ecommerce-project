@@ -9,7 +9,7 @@ import (
 	"ecommerce/utils"
 )
 
-func CreateUser(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) CreateUser(w http.ResponseWriter, r *http.Request) {
 	newUser := database.User{}
 
 	decoder := json.NewDecoder(r.Body)

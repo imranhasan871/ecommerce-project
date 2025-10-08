@@ -8,7 +8,7 @@ import (
 	"ecommerce/utils"
 )
 
-func GetProduct(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) GetProduct(w http.ResponseWriter, r *http.Request) {
 	productID := r.PathValue("id")
 
 	id, err := strconv.Atoi(productID)
