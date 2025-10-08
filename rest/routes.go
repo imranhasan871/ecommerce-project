@@ -23,7 +23,22 @@ func initRoutes(mux *http.ServeMux, manager *middlewares.Manager) {
 		),
 	)
 
-	mux.Handle("GET /products/{id}", manager.With(http.HandlerFunc(product.GetProduct)))
-	mux.Handle("PUT /products/{id}", manager.With(http.HandlerFunc(product.UpdateProduct)))
-	mux.Handle("DELETE /products/{id}", manager.With(http.HandlerFunc(product.DeleteProduct)))
+	mux.Handle("GET /products/{id}",
+		manager.With(
+			http.HandlerFunc(product.GetProduct),
+		))
+
+	mux.Handle("PUT /products/{id}",
+		manager.With(
+			http.HandlerFunc(
+				product.UpdateProduct),
+			middlewares.AuthenticateJWT,
+		),
+	)
+
+	mux.Handle("DELETE /products/{id}",
+		manager.With(
+			http.HandlerFunc(product.DeleteProduct),
+			middlewares.AuthenticateJWT),
+	)
 }
