@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"ecommerce/config"
 	"ecommerce/database"
 	"ecommerce/utils"
 )
@@ -16,6 +17,7 @@ type ReqLogin struct {
 
 func Login(w http.ResponseWriter, r *http.Request) {
 	var reqLogin ReqLogin
+	cnf := config.GetConfig()
 
 	decoder := json.NewDecoder(r.Body)
 	err := decoder.Decode(&reqLogin)
@@ -24,11 +26,24 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Invalid Request Data", http.StatusBadRequest)
 		return
 	}
+
 	usr := database.Find(reqLogin.Email, reqLogin.Password)
 	if usr == nil {
 		http.Error(w, "Invalid credentials", http.StatusBadRequest)
 		return
 	}
 
-	utils.SendData(w, "Login Successfully", http.StatusCreated)
+	accessToken, err := utils.CreateJWT(
+		cnf.JwtSecretKey,
+		utils.Payload{
+			Sub:       usr.ID,
+			FirstName: usr.FirstName,
+			LastName:  usr.LastName,
+		})
+	if err != nil {
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	utils.SendData(w, accessToken, http.StatusCreated)
 }

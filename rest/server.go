@@ -13,7 +13,7 @@ func Start() {
 	cnf := config.GetConfig()
 
 	manager := middlewares.NewManager()
-	manager.Use(middlewares.Logger, middlewares.CorsWithPreflight)
+	manager.Use(middlewares.CorsWithPreflight, middlewares.Logger)
 
 	mux := http.NewServeMux()
 
