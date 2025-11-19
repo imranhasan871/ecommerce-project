@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"strconv"
 
-	"ecommerce/database"
+	"ecommerce/domain"
 	"ecommerce/utils"
 )
 
@@ -17,7 +17,7 @@ func (h *Handler) UpdateProduct(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	updateProduct := database.Product{}
+	updateProduct := domain.Product{}
 
 	error := json.NewDecoder(r.Body).Decode(&updateProduct)
 	if error != nil {
@@ -27,7 +27,11 @@ func (h *Handler) UpdateProduct(w http.ResponseWriter, r *http.Request) {
 	}
 
 	updateProduct.ID = id
-	database.Update(updateProduct)
+	updatedProduct, err := h.productRepo.Update(updateProduct)
+	if err != nil {
+		utils.SendError(w, http.StatusInternalServerError, "Failed to update product")
+		return
+	}
 
-	utils.SendData(w, "Successfully updated product", http.StatusCreated)
+	utils.SendData(w, updatedProduct, http.StatusCreated)
 }

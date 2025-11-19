@@ -5,13 +5,13 @@ import (
 	"fmt"
 	"net/http"
 
-	"ecommerce/database"
+	"ecommerce/domain"
 	"ecommerce/utils"
 )
 
 func (h *Handler) CreateProduct(w http.ResponseWriter, r *http.Request) {
 
-	newProduct := database.Product{}
+	newProduct := domain.Product{}
 
 	decoder := json.NewDecoder(r.Body)
 	err := decoder.Decode(&newProduct)
@@ -20,6 +20,10 @@ func (h *Handler) CreateProduct(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Please give me valid Json", http.StatusBadRequest)
 		return
 	}
-	createdProduct := database.Store(newProduct)
+	createdProduct, err := h.productRepo.Create(newProduct)
+	if err != nil {
+		utils.SendError(w, http.StatusInternalServerError, "Failed to create product")
+		return
+	}
 	utils.SendData(w, createdProduct, http.StatusCreated)
 }

@@ -4,7 +4,6 @@ import (
 	"net/http"
 	"strconv"
 
-	"ecommerce/database"
 	"ecommerce/utils"
 )
 
@@ -15,7 +14,11 @@ func (h *Handler) DeleteProduct(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	database.Delete(id)
+	err = h.productRepo.Delete(id)
+	if err != nil {
+		utils.SendError(w, http.StatusInternalServerError, "Failed to delete product")
+		return
+	}
 
 	utils.SendData(w, "Successfully delete product", http.StatusCreated)
 }

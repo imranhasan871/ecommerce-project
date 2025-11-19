@@ -6,7 +6,6 @@ import (
 	"net/http"
 
 	"ecommerce/config"
-	"ecommerce/database"
 	"ecommerce/utils"
 )
 
@@ -27,7 +26,11 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	usr := database.Find(reqLogin.Email, reqLogin.Password)
+	usr, err := h.userRepo.Find(reqLogin.Email, reqLogin.Password)
+	if err != nil {
+		utils.SendError(w, http.StatusInternalServerError, "Internal Server Error")
+		return
+	}
 	if usr == nil {
 		http.Error(w, "Invalid credentials", http.StatusBadRequest)
 		return
